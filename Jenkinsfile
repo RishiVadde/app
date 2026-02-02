@@ -32,15 +32,14 @@ pipeline {
                 sh '''
                     . venv/bin/activate
 
-                    # Stop old app if running
                     if [ -f app.pid ]; then
                         kill $(cat app.pid) || true
                         rm -f app.pid
                     fi
 
-                    # Start app and store logs
                     nohup python3 app.py > app.log 2>&1 &
                     echo $! > app.pid
+
                     echo "App deployed and running!"
                 '''
             }
@@ -49,7 +48,7 @@ pipeline {
 
     post {
         always {
-            # 🔥 This makes artifacts appear
+            // This makes artifacts appear in Jenkins
             archiveArtifacts artifacts: 'app.log, app.pid', allowEmptyArchive: true
         }
     }
