@@ -1,0 +1,14 @@
+[Unit]
+Description=MyApp Python Service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/myapp
+Environment="PATH=/opt/myapp/venv/bin"
+ExecStart=/opt/myapp/venv/bin/gunicorn -b 0.0.0.0:8000 app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
