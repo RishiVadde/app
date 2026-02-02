@@ -6,11 +6,8 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    # Create virtual environment
                     python3 -m venv venv
                     . venv/bin/activate
-
-                    # Install dependencies
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -21,8 +18,6 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
-
-                    # Run pytest if tests exist
                     if [ -d "tests" ]; then
                         pytest -q
                     else
@@ -37,19 +32,25 @@ pipeline {
                 sh '''
                     . venv/bin/activate
 
-                    # Stop previous process if running
+                    # Stop old app if running
                     if [ -f app.pid ]; then
                         kill $(cat app.pid) || true
                         rm -f app.pid
                     fi
 
-                    # Start the app
+                    # Start app and store logs
                     nohup python3 app.py > app.log 2>&1 &
                     echo $! > app.pid
-
                     echo "App deployed and running!"
                 '''
             }
+        }
+    }
+
+    post {
+        always {
+            # 🔥 This makes artifacts appear
+            archiveArtifacts artifacts: 'app.log, app.pid', allowEmptyArchive: true
         }
     }
 }
